@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+            
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel = "stylesheet"
+   		type = "text/css"
+   		href = "StyleSheet.css" />
+ </head>
+    
+<script type="text/javascript" 
+	src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js">
+</script>
+
+<script type="text/javascript">
+
+	function getAll() {
+		 $.ajax('/getall', {
+				type: 'GET', // http method
+				Accept : "application/json",
+			success: function (data, status, xhr) {
+				$('#dispPref').empty();
+				$('#dispPref').append('<tr><th>Name</th><th>Section</th><th>Shirt Size</th><th>Remove</th></tr>');
+				$.each(data, function (i, obj) {
+					$('#dispPref').append('<tr>');
+					$('#dispPref').append('<td>'+obj.name+'</td>');
+					$('#dispPref').append('<td>'+obj.section+'</td>');
+					$('#dispPref').append('<td>'+obj.size+'</td>');
+					$('#dispPref').append('<td><input type=button id=delete value=X onclick=delRecord(\`'+obj.id+'\`);></input></td>');
+					$('#dispPref').append('</tr>');
+			    });
+				$('#dispPref').append('');
+			},
+			error: function (jqXhr, textStatus, errorMessage) {
+				$('p').append('Error: ' + errorMessage);
+			}
+		});
+	}
+
+	function saveRecord() {
+		var data = {
+			name : $("#name").val(),
+			section :  $("#section").val(),
+			size :  $("#size").val()
+		}
+		$.ajax('/save', {
+			type: 'POST',  // http method
+			contentType : "application/json",
+			data : JSON.stringify(data),
+			success: function (data, status, xhr) {
+				getAll();
+			},
+			error: function (jqXhr, textStatus, errorMessage) {
+					$('p').append('Error: ' + errorMessage);
+				}
+		});
+		
+
+	}
+	function delRecord(id) {
+		 console.log(id);
+		 $.ajax('/delete', {
+			 type: 'POST',  // http method
+			 contentType : "application/json",
+			 data: id ,
+				success: function (data, status, xhr) {
+					getAll();
+				},
+				error: function (jqXhr, textStatus, errorMessage) {
+						$('p').append('Error: ' + textStatus + errorMessage);
+				}
+		 });
+	 }
+
+	
+		$(document).ready(function () {
+		getAll();
+		 $('#nhs').submit(function(){
+			 saveRecord();
+		});
+
+		$('#getAll').click(function() {
+			 getAll();
+		});
+    });
+    </script>
+</head>
+<body>
+	<img src="NHS-Logo.png" align="center">
+	
+	<h1 class="heading"> National High School - Annual Get together </h1>
+	<form class="nhs" id="nhs">
+		<div class="floating-placeholder">
+			<label for="name">Name</label>
+			<input type="text" id="name" />
+		</div>
+		<div class="floating-placeholder">
+			<label for="section">Section</label>
+			<select id="section" name="section">
+				<option value="A">A</option>
+				<option value="B">B</option>
+				<option value="C">C</option>
+				<option value="D">D</option>
+				<option value="E">E</option>
+				<option value="F">F</option>
+			</select>
+		</div>
+		<div class="floating-placeholder">
+			<label for="size">Shirt Size</label>
+			<select id="size" name="size">
+				<option value="M">M</option>
+				<option value="L">L</option>
+				<option value="XL">XL</option>
+			</select>
+		</div>
+		<input class="floating-placeholder" type="submit" id="savePref" value="Save" />
+		<br /><br />
+		<input class="floating-placeholder" type="button" id="getAll" value="GetAllPreferences" />
+		<br /><br />
+		<div class="floating-placeholder" id="dispPref"></div>
+	</form>
+	<p>
+	</p>
+</body>
+</html>
